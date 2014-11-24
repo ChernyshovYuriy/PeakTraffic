@@ -13,7 +13,7 @@ public class PeakTrafficCounter implements LogReaderListener {
 
 
     @Override
-    public void processLogRecord(LogEntity record) {
+    public void processLogRecord(final LogEntity record) {
 
     }
 

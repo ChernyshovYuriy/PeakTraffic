@@ -21,6 +21,11 @@ public class DefaultLogReader implements LogReader {
     private LogReaderListener logReaderListener;
 
     /**
+     * Cats Tail symbol which is used in emails
+     */
+    private static final String CATS_TAIL = "@";
+
+    /**
      * Constructor.
      *
      * @param logReaderListener Concrete implementation of the {@link LogReaderListener}.
@@ -42,12 +47,59 @@ public class DefaultLogReader implements LogReader {
 
     public LogEntity parseLogLine(final String logLine) {
         Logger.printMessage("line:" + logLine);
-        final String date = "";
-        final String user = "";
-        final String userReceiver = "";
-
-        // TODO : Parse data here
-
+        final String user = extractUser(logLine);
+        Logger.printMessage("First email:" + user);
+        final String userReceiver = extractUserReceiver(logLine);
+        Logger.printMessage("Second email:" + userReceiver);
+        final String date = extractDate(logLine);
+        Logger.printMessage("Date:" + date);
         return LogEntity.getInstance(date, user, userReceiver);
+    }
+
+    /**
+     * This method extracts first email from the single log line.
+     *
+     * @param logLine Log line.
+     * @return Email of the user.
+     */
+    protected static String extractUser(final String logLine) {
+        // Find first cat tail index
+        int firstCatsTailSignIndex = logLine.indexOf(CATS_TAIL);
+        // Find first white space form the left of the first cat tail
+        int firstEmailStartIndex = logLine.lastIndexOf(" ", firstCatsTailSignIndex) + 1;
+        // Find first white space from the right of the first cat tail
+        int firstEmailEndIndex = logLine.indexOf(" ", firstEmailStartIndex);
+        // Extract email using first and last indexes
+        return logLine.substring(firstEmailStartIndex, firstEmailEndIndex);
+    }
+
+    /**
+     * This method extracts second email from the single log line.
+     *
+     * @param logLine Log line.
+     * @return Email of the user who received data from the main user.
+     */
+    protected static String extractUserReceiver(final String logLine) {
+        // Find last cat tail index
+        int firstCatsTailSignIndex = logLine.lastIndexOf(CATS_TAIL);
+        // Find first white space form the left of the last cat tail
+        int firstEmailStartIndex = logLine.lastIndexOf(" ", firstCatsTailSignIndex) + 1;
+        // Extract email using first and last indexes
+        return logLine.substring(firstEmailStartIndex, logLine.length());
+    }
+
+    /**
+     * This method extracts the date from the single log line.
+     *
+     * @param logLine Log line.
+     * @return Date as string.
+     */
+    protected static String extractDate(final String logLine) {
+        // Find first cat tail index
+        int firstCatsTailSignIndex = logLine.indexOf(CATS_TAIL);
+        // Find first white space form the left of the first cat tail
+        int firstEmailStartIndex = logLine.lastIndexOf(" ", firstCatsTailSignIndex) + 1;
+        // Extract email using first and last indexes
+        return logLine.substring(0, firstEmailStartIndex).trim();
     }
 }
