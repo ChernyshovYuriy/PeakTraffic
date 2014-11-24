@@ -46,13 +46,10 @@ public class DefaultLogReader implements LogReader {
     }
 
     public LogEntity parseLogLine(final String logLine) {
-        Logger.printMessage("line:" + logLine);
+        //Logger.printMessage("line:" + logLine);
         final String user = extractUser(logLine);
-        Logger.printMessage("First email:" + user);
         final String userReceiver = extractUserReceiver(logLine);
-        Logger.printMessage("Second email:" + userReceiver);
         final String date = extractDate(logLine);
-        Logger.printMessage("Date:" + date);
         return LogEntity.getInstance(date, user, userReceiver);
     }
 
