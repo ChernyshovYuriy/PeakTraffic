@@ -1,6 +1,5 @@
 package business;
 
-import util.Logger;
 import vo.LogEntity;
 
 import java.io.BufferedReader;
@@ -45,7 +44,7 @@ public class DefaultLogReader implements LogReader {
         logReaderListener.onProcessComplete();
     }
 
-    public LogEntity parseLogLine(final String logLine) {
+    protected LogEntity parseLogLine(final String logLine) {
         //Logger.printMessage("line:" + logLine);
         final String user = extractUser(logLine);
         final String userReceiver = extractUserReceiver(logLine);
