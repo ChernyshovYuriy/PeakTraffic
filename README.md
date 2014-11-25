@@ -32,4 +32,4 @@ How to run:
 - Navigate to the '/build/classes/main' (assuming that You are locating at the root of the project)
 - Execute: 'java Main ../../../src/main/resources/input.txt' (or any other input data file, there are some in the 'resources' directory)
 
-Project is created with the assumption that input data are in correct format thus many bound conditions check points are missed. The goal of the project - provide efficient algorithm rather then robusteness application.
+Project is created with the assumption that input data are in correct format thus many bound conditions check points are missed. The goal of the project - provide efficient algorithm rather than robustness application.
