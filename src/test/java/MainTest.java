@@ -1,13 +1,12 @@
-import business.DefaultLogReader;
-import business.LogReader;
-import business.LogReaderListener;
+import business.*;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import util.Logger;
 import vo.LogEntity;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -28,13 +27,27 @@ public class MainTest {
     private static final String INPUT_A_USER = "a@facebook.com";
     private static final String INPUT_A_SUB_USER = "b@facebook.com";
 
+    private InputStream inputStream;
+    private InputStreamReader inputStreamReader;
+    private LogReader logReader;
+    private LogReaderListener compositeListener;
+
+    @Before
+    public void setUp() throws Exception {
+        Logger.setIsTestMode(true);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        Logger.setIsTestMode(false);
+    }
+
     @Test
     public void logReaderListenersMethodCalls() throws IOException {
-        final LogReaderListener compositeListener = mock(LogReaderListener.class);
-        final LogReader logReader = new DefaultLogReader(compositeListener);
-
-        InputStream inputStream = this.getClass().getResourceAsStream("/input_a.txt");
-        final InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+        compositeListener = mock(LogReaderListener.class);
+        logReader = new DefaultLogReader(compositeListener);
+        inputStream = this.getClass().getResourceAsStream("/input_all_same.txt");
+        inputStreamReader = new InputStreamReader(inputStream);
 
         logReader.processLog(inputStreamReader);
 
@@ -54,12 +67,12 @@ public class MainTest {
     }
 
     @Test
-    public void processVeryLargeFile() throws IOException {
-        final LogReaderListener compositeListener = mock(LogReaderListener.class);
-        final LogReader logReader = new DefaultLogReader(compositeListener);
+    public void readLargeFileSimpleWithoutTimeout() throws IOException {
+        compositeListener = mock(LogReaderListener.class);
+        logReader = new DefaultLogReader(compositeListener);
 
-        InputStream inputStream = this.getClass().getResourceAsStream("/input_large.txt");
-        final InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+        inputStream = this.getClass().getResourceAsStream("/input_large_simple.txt");
+        inputStreamReader = new InputStreamReader(inputStream);
 
         logReader.processLog(inputStreamReader);
 
@@ -67,5 +80,75 @@ public class MainTest {
 
         verify(compositeListener, times(INPUT_LARGE_LINES_NUMBER)).processLogRecord(logEntityArgumentCaptor.capture());
         verify(compositeListener, times(1)).onProcessComplete();
+    }
+
+    @Test
+    public void readLargeFileComplexWithoutTimeout() throws IOException {
+        compositeListener = mock(LogReaderListener.class);
+        logReader = new DefaultLogReader(compositeListener);
+
+        inputStream = this.getClass().getResourceAsStream("/input_large.txt");
+        inputStreamReader = new InputStreamReader(inputStream);
+
+        logReader.processLog(inputStreamReader);
+
+        final ArgumentCaptor<LogEntity> logEntityArgumentCaptor = ArgumentCaptor.forClass(LogEntity.class);
+
+        verify(compositeListener, times(INPUT_LARGE_LINES_NUMBER)).processLogRecord(logEntityArgumentCaptor.capture());
+        verify(compositeListener, times(1)).onProcessComplete();
+    }
+
+    @Test
+    public void inputTxtTwoClustersShouldPrintCorrectResult() throws IOException {
+
+        final String expected = "a@facebook.com, b@facebook.com, c@facebook.com\n" +
+                "d@facebook.com, e@facebook.com, f@facebook.com\n";
+        final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
+        inputStream = this.getClass().getResourceAsStream("/input.txt");
+        // Read a log file, transform it to the input stream reader
+        inputStreamReader = new InputStreamReader(inputStream);
+
+        // Implement log reader listener in order to do peak traffic logic
+        final LogReaderListener peakTrafficCounter = new PeakTrafficCounter();
+
+        // Composite pattern allows to combine several implementations of the same interface in order to
+        // perform many operations over single entity
+        compositeListener = new CompositeCounter(peakTrafficCounter);
+
+        // Instantiate implementation of the log reader interface.
+        logReader = new DefaultLogReader(compositeListener);
+
+        // Finally - process log file
+        logReader.processLog(inputStreamReader);
+
+        assertThat(outContent.toString(), is(expected));
+    }
+
+    @Test
+    public void inputTxtLessThenMinClusterUserCountShouldPrintCorrectResult() throws IOException {
+
+        final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
+        inputStream = this.getClass().getResourceAsStream("/input_less_then_min.txt");
+        // Read a log file, transform it to the input stream reader
+        inputStreamReader = new InputStreamReader(inputStream);
+
+        // Implement log reader listener in order to do peak traffic logic
+        final LogReaderListener peakTrafficCounter = new PeakTrafficCounter();
+
+        // Composite pattern allows to combine several implementations of the same interface in order to
+        // perform many operations over single entity
+        compositeListener = new CompositeCounter(peakTrafficCounter);
+
+        // Instantiate implementation of the log reader interface.
+        logReader = new DefaultLogReader(compositeListener);
+
+        // Finally - process log file
+        logReader.processLog(inputStreamReader);
+
+        assertThat(outContent.toString(), is(""));
     }
 }

@@ -54,13 +54,16 @@ public class UndirectedGraph {
      *
      * @param sourceVertex Source Vertex.
      * @param targetVertex Destination Vertex
-     * @return
+     * @return True if provided vertexes has an edge, False - otherwise.
      */
     public boolean containsEdge(final String sourceVertex, final String targetVertex) {
         return dataMap.get(sourceVertex).contains(targetVertex)
                 && dataMap.get(targetVertex).contains(sourceVertex);
     }
 
+    /**
+     * @return Set of the Vertexes.
+     */
     public Set<String> vertexSet() {
         return vertexes;
     }

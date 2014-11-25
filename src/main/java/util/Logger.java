@@ -12,7 +12,13 @@ package util;
  */
 public class Logger {
 
+    @SuppressWarnings("unused")
     private static final String LOG_TAG = "PeakTraffic";
+
+    /**
+     * This flag hides all unnecessary logging from std out when perform testing.
+     */
+    private static boolean isTestMode = false;
 
     /**
      * Constructor.
@@ -20,12 +26,28 @@ public class Logger {
     private Logger() { }
 
     /**
+     * @return True if testing is in progress, False - otherwise
+     */
+    public static boolean isIsTestMode() {
+        return isTestMode;
+    }
+
+    /**
+     * Set True if testing is in progress, False - otherwise
+     * @param isTestMode True or False.
+     */
+    public static void setIsTestMode(boolean isTestMode) {
+        Logger.isTestMode = isTestMode;
+    }
+
+    /**
      * Print log info message.
      *
      * @param message String message.
      */
     public static void printMessage(final String message) {
-        System.out.println(LOG_TAG + " [I]: " + message);
+        //System.out.println(LOG_TAG + " [I]: " + message);
+        System.out.println(message);
     }
 
     /**
@@ -34,6 +56,7 @@ public class Logger {
      * @param message String message.
      */
     public static void printError(final String message) {
-        System.out.println(LOG_TAG + " [E]: " + message);
+        //System.out.println(LOG_TAG + " [E]: " + message);
+        System.out.println(message);
     }
 }
