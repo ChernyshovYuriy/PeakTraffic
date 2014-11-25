@@ -27,3 +27,7 @@ Requirements (I use Linux for the development):
 - Now it is possible to list all tasks that gradle provides by executing: 'gradle tasks'
 - Execute: 'gradle assemble' in order to assemble project
 - Execute: 'gradle test --info' in order to run all available tests
+
+How to run:
+- Navigate to the '/build/classes/main' (assuming that You are locating at the root of the project)
+- Execute: 'java Main ../../../src/main/resources/input.txt' (or any other input data file, there are some in the 'resources' directory)
